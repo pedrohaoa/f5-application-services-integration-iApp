@@ -2208,6 +2208,17 @@ catch {
     exec $fn &
 } {}
 
+set repeat_postfinal_status_icall_tmpl {
+%insertfile:include/repeat_postdeploy_final_status.icall%
+};
+
+set repeat_postfinal_script_map [list %APP_NAME%  $::app \
+                     %APP_PATH%      $::app_path  ]
+
+set repeat_postfinal_status_icall_src [string map $postfinal_script_map $postfinal_icall_tmpl]
+
+tmsh::create sys icall script repeat_postdeploy_final_status definition \{ $repeat_postfinal_status_icall_src \}
+
 if { $iapp__strictUpdates eq "disabled" } {
   debug [list strict_updates] "disabling strict updates" 5
   tmsh::modify [format "sys application service %s/%s strict-updates disabled" $app_path $app]

@@ -150,7 +150,7 @@ class BIPClient(object):
         )
 
     def verify_deployment(
-            self, payload, no_check=False, max_check=10, wait=6):
+            self, payload, no_check=False, max_check=100, wait=6):
         if no_check:
             return True
 
