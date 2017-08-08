@@ -26,6 +26,7 @@ puts "$logprefix Completed executing deferred commands..."
 istats::set [format "%s string deploy.postdeploy_final" $iaso] "DEFERRED_CMDS_COMPLETE"
 
 tmsh::delete sys icall handler periodic postdeploy_final
+tmsh::create sys icall handler periodic repeat_postdeploy_final_status script repeat_postdeploy_final_status interval 30 first-occurrence now last-occurrence now+3m status active
 if { $strict_updates eq "enabled" } {
 	tmsh::modify sys application service $aso strict-updates enabled
 }
@@ -34,3 +35,4 @@ if { $strict_updates eq "enabled" } {
 set systemTime [clock seconds]
 puts "$logprefix Finished at [clock format $systemTime -format %D] [clock format $systemTime -format %H:%M:%S]"
 istats::set [format "%s string deploy.postdeploy_final" $iaso] [format "FINISHED_%s" $systemTime]
+

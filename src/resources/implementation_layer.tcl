@@ -2183,6 +2183,17 @@ debug [list postfinal icall_handler] [format "creating iCall handler; executing 
 tmsh::create sys icall script postdeploy_final definition \{ $postfinal_icall_src \}
 tmsh::create sys icall handler periodic postdeploy_final script postdeploy_final interval 10 first-occurrence $postfinal_icall_time last-occurrence $postfinal_icall_time status $postfinal_handler_state
 
+set repeat_postfinal_status_icall_tmpl {
+%insertfile:include/repeat_postdeploy_final_status.icall%
+};
+
+set repeat_postfinal_script_map [list %APP_NAME%  $::app \
+                     %APP_PATH%      $::app_path  ]
+
+set repeat_postfinal_status_icall_src [string map $postfinal_script_map $postfinal_icall_tmpl]
+
+tmsh::create sys icall script repeat_postdeploy_final_status definition \{ $repeat_postfinal_status_icall_src \}
+
 if { $iapp__strictUpdates eq "disabled" } {
   debug [list strict_updates] "disabling strict updates" 5
   tmsh::modify [format "sys application service %s/%s strict-updates disabled" $app_path $app]
