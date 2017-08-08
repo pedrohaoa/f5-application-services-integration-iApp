@@ -2162,10 +2162,13 @@ set postfinal_icall_tmpl {
 };
 
 set postfinal_handler_state "inactive"
+# If bundling proces is not required, then delay of post final iCall script is lower by factor POSTDEPLOY_DELAY. 
 if { $postdeploy_final_state } {
   set postfinal_handler_state "active"
+  # The delay for post final iCall script is set to 16 seconds.
   set postfinal_icall_time [clock format [expr {[clock seconds] + $::POSTDEPLOY_DELAY*2}] -format {%Y-%m-%d:%H:%M:%S}]
 } else {
+  # The delay for post final iCall script is set to 24 seconds.
   set postfinal_icall_time [clock format [expr {[clock seconds] + $::POSTDEPLOY_DELAY*3}] -format {%Y-%m-%d:%H:%M:%S}]
 }
 
@@ -2199,7 +2202,7 @@ catch {
 } {}
 
 set tmsh_load_icall_tmpl {
-%insertfile:src/include/tmsh_load.icall%
+%insertfile:include/tmsh_load.icall%
 };
 
 set tmsh_load_icall_time [clock format [expr {[clock seconds] + $::POSTDEPLOY_DELAY}] -format {%Y-%m-%d:%H:%M:%S}]

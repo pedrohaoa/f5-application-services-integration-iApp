@@ -11,11 +11,15 @@ set filename [format "/var/tmp/appsvcs_postdeploy_%s.conf" $app]
 
 if { [file exists $filename] } {
     tmsh::cd $app_path
+    # The strict-updates must be disabled on iApp due to fact any modification outside
+    # iApp platform is blocked. There is no checking if previous state was disabled or
+    # enalbed, because this will be waste of one operation.
     tmsh::modify sys application service $aso strict-updates disabled
 
     tmsh::load sys config file $filename merge
     file delete -force $filename
 
+    tmsh::delete sys icall handler periodic tmsh_load_icall
     if { $strict_updates eq "enabled" } {
     	tmsh::modify sys application service $aso strict-updates enabled
     }
