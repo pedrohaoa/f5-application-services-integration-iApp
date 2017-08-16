@@ -2188,9 +2188,10 @@ set repeat_postfinal_status_icall_tmpl {
 };
 
 set repeat_postfinal_script_map [list %APP_NAME%  $::app \
-                     %APP_PATH%      $::app_path  ]
+                     %APP_PATH%      $::app_path  \
+                     %PARTITION%     $::partition]
 
-set repeat_postfinal_status_icall_src [string map $postfinal_script_map $postfinal_icall_tmpl]
+set repeat_postfinal_status_icall_src [string map $repeat_postfinal_script_map $repeat_postfinal_status_icall_tmpl]
 
 tmsh::create sys icall script repeat_postdeploy_final_status definition \{ $repeat_postfinal_status_icall_src \}
 
