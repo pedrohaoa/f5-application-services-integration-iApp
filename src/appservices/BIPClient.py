@@ -149,11 +149,12 @@ class BIPClient(object):
         )
 
     def verify_deployment(
-            self, payload, no_check=False, max_check=100, wait=6):
+            self, payload, no_check=False, max_check=20, wait=6):
         if no_check:
             return True
 
-        current_time = int(time.time())
+        current_time, _ = self.run_command('date +%s')
+        current_time = int(current_time)
         istat_key = self._get_istat_key(payload['partition'], payload['name'])
         command = 'istats get \"{}\"'.format(
             istat_key)

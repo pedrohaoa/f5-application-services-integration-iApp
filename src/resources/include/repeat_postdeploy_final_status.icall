@@ -1,5 +1,6 @@
 set app %APP_NAME%
 set app_path %APP_PATH%
+set partition %PARTITION%
 
 set aso "/$partition/${app}.app/$app"
 set iaso [format "sys.application.service %s" $aso]
