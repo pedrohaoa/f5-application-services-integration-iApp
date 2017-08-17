@@ -144,7 +144,7 @@ def dependent_scale(config, payload_dependencies, first_pool_addr, bip_client,
 
             if not dependency['delete_override'] and (index+1) < len(
                     payload_dependencies):
-                test_results = remove_application_service(
+                remove_application_service(
                     deployment_no, payload, bip_client, test_results, fail_fast)
 
     return remove_application_service(
