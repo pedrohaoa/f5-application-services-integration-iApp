@@ -99,8 +99,6 @@ def independent_scale(payload, first_pool_addr, log_dir, bip_client,
             if fail_fast:
                 raise
 
-            break
-
     return remove_application_service(
         deployment_no, payload, bip_client, test_results, fail_fast)
 
@@ -143,8 +141,6 @@ def dependent_scale(config, payload_dependencies, first_pool_addr, bip_client,
                 bip_client.download_qkview(test_run_log_dir)
                 if fail_fast:
                     raise
-
-                break
 
             if not dependency['delete_override'] and (index+1) < len(
                     payload_dependencies):
