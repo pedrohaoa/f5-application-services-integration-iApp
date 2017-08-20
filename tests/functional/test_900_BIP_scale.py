@@ -166,10 +166,21 @@ def test_functional_tests_at_scale(
 
     for payload_file in get_payload_files(get_config):
 
+        payload_basename = get_payload_basename(payload_file)
+        if payload_basename in [
+            'test_vs_standard_https_multi_listeners.json',
+            'test_vs_standard_http_ipv6.json',
+            'test_pools_fixup_4.json'
+        ]:
+            logger.warn('Skipping payload {}\n'
+                        'Additional modifications are required\n'
+                        'to run them at scale.\n'.format(payload_basename))
+            # ToDo: add required modifications
+            continue
+
         payload = load_payload(get_config, payload_file)
 
         first_pool_addr = ipaddress.ip_address(u"172.16.0.100")
-        payload_basename = get_payload_basename(payload_file)
         payload_dependencies = get_payload_dependencies(
             prepare_tests, payload_basename)
 
