@@ -22,7 +22,7 @@ set TMPLNAME "%TMPL_NAME%"
 set IMPLMAJORVERSION "2.0"
 set IMPLMINORVERSION "004"
 set IMPLVERSION [format "%s.%s" $IMPLMAJORVERSION $IMPLMINORVERSION]
-set POSTDEPLOY_DELAY 0
+set POSTDEPLOY_DELAY 15
 
 if { [tmsh::get_field_value [lindex [tmsh::get_config sys scriptd log-level] 0] log-level] eq "debug" } {
   set iapp__logLevel 10
@@ -2122,12 +2122,8 @@ if { $bundler_all_deploy } {
   debug [list bundler icall_src] [format "%s" $bundler_icall_src] 10
   debug [list bundler icall_handler] [format "creating iCall handler; executing postdeploy script at: %s" $bundler_icall_time] 7
 
-  set fn [format "/var/tmp/appsvcs_postdeploy_%s.conf" $app]
-  catch {
-      set fh [open $fn w]
-      puts $fh $bundler_icall_src
-      close $fh
-  } {}
+  tmsh::create sys icall script postdeploy_bundler definition \{ $bundler_icall_src \}
+  tmsh::create sys icall handler periodic postdeploy_bundler interval 10 first-occurrence $bundler_icall_time last-occurrence $bundler_icall_time script postdeploy_bundler status active
 
   debug [list bundler deploy] "Bundled policy deployment will complete momentarily..." 5
 }
@@ -2162,6 +2158,7 @@ set postfinal_icall_tmpl {
 };
 
 set postfinal_handler_state "inactive"
+
 if { $postdeploy_final_state } {
   set postfinal_handler_state "active"
 }
@@ -2177,36 +2174,26 @@ set postfinal_script_map [list %APP_NAME%  $::app \
                      %NEWDEPLOY%     $newdeploy \
                      %REDEPLOY%      $redeploy \
                      %DEFERREDCMDS%  $postfinal_deferred_cmds_str \
-                     %STRICTUPDATES% $iapp__strictUpdates \
-                     %HANDLER_STATE% $postfinal_handler_state ]
+                     %STRICTUPDATES% $iapp__strictUpdates ]
 
 set postfinal_icall_src [string map $postfinal_script_map $postfinal_icall_tmpl]
 debug [list postfinal icall_src] [format "%s" $postfinal_icall_src] 10
 debug [list postfinal icall_handler] [format "creating iCall handler; executing postdeploy_final script at: %s" $postfinal_icall_time] 7
 
-set fn [format "/var/tmp/appsvcs_postdeploy_%s.conf" $app]
-catch {
-    if { $bundler_all_deploy } {
-      set fh [open $fn a]
-    } else {
-      set fh [open $fn w]
-    }
-    puts $fh ""
-    puts $fh $postfinal_icall_src
-    close $fh
-} {}
+tmsh::create sys icall script postdeploy_final definition \{ $postfinal_icall_src \}
+tmsh::create sys icall handler periodic postdeploy_final script postdeploy_final interval 10 first-occurrence $postfinal_icall_time last-occurrence $postfinal_icall_time status $postfinal_handler_state
 
-set fn [format "/var/tmp/appsvcs_load_postdeploy_%s.sh" $app]
-catch {
-    set fh [open $fn w]
-    puts $fh "sleep 5"
-    puts $fh [format "tmsh load sys config file /var/tmp/appsvcs_postdeploy_%s.conf merge" $app]
-    puts $fh [format "rm -f /var/tmp/appsvcs_postdeploy_%s.conf" $app]
-    puts $fh [format "rm -f /var/tmp/appsvcs_load_postdeploy_%s.sh" $app]
-    close $fh
-    exec chmod 777 $fn
-    exec $fn &
-} {}
+set repeat_postfinal_status_icall_tmpl {
+%insertfile:include/repeat_postdeploy_final_status.icall%
+};
+
+set repeat_postfinal_script_map [list %APP_NAME%  $::app \
+                     %APP_PATH%      $::app_path  \
+                     %PARTITION%     $::partition]
+
+set repeat_postfinal_status_icall_src [string map $repeat_postfinal_script_map $repeat_postfinal_status_icall_tmpl]
+
+tmsh::create sys icall script repeat_postdeploy_final_status definition \{ $repeat_postfinal_status_icall_src \}
 
 if { $iapp__strictUpdates eq "disabled" } {
   debug [list strict_updates] "disabling strict updates" 5

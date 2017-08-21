@@ -1,0 +1,11 @@
+set app %APP_NAME%
+set app_path %APP_PATH%
+set partition %PARTITION%
+
+set aso "/$partition/${app}.app/$app"
+set iaso [format "sys.application.service %s" $aso]
+set logprefix "\[appsvcs_repeat_postdeploy_final\]\[$app\]"
+
+set systemTime [clock seconds]
+puts "$logprefix Update istats postdeploy_final status [clock format $systemTime -format %D] [clock format $systemTime -format %H:%M:%S]"
+istats::set [format "%s string deploy.postdeploy_final" $iaso] [format "FINISHED_%s" $systemTime]

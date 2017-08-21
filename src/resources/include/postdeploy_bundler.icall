@@ -1,6 +1,3 @@
-sys icall script %APP_PATH%/postdeploy_bundler {
-    app-service %APP_PATH%/%APP_NAME%
-    definition {
 set app %APP_NAME%
 set app_path %APP_PATH%
 set partition %PARTITION%
@@ -153,7 +150,7 @@ foreach df $dellist {
 }
 
 tmsh::delete sys icall handler periodic postdeploy_bundler
-tmsh::modify sys icall handler periodic postdeploy_final first-occurrence now status active
+tmsh::modify sys icall handler periodic postdeploy_final interval 10 first-occurrence now last-occurrence now script postdeploy_final status active
 if { $strict_updates eq "enabled" } {
 	tmsh::modify sys application service $aso strict-updates enabled
 }
@@ -161,16 +158,3 @@ if { $strict_updates eq "enabled" } {
 set systemTime [clock seconds]
 puts "$logprefix Finished at [clock format $systemTime -format %D] [clock format $systemTime -format %H:%M:%S]"
 istats::set [format "%s string deploy.postdeploy_bundler" $iaso] "FINISHED"
-    }
-    description none
-    events none
-}
-
-sys icall handler periodic %APP_PATH%/postdeploy_bundler {
-    app-service %APP_PATH%/%APP_NAME%
-    first-occurrence %ICALLTIME%
-    interval 3000
-    last-occurrence now+10m
-    script %APP_PATH%/postdeploy_bundler
-    status active
-}
