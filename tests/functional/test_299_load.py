@@ -32,6 +32,11 @@ from src.appservices.exceptions import RESTException
 from src.appservices.tools import mk_dir
 
 
+@pytest.fixture(scope='module')
+def get_test_payload(request):
+    return request.config.getoption("--test_payload")
+
+
 class iStatWorker(threading.Thread):
     def __init__(self, payload_queue, result_queue, logger, host, threads):
         super(iStatWorker, self).__init__()
@@ -128,7 +133,7 @@ class REST_killer(iStatWorker):
                 self.stop_threads()
 
 
-def prepare(payload_count, config):
+def prepare(payload_count, config, test_payload='test_vs_standard_https_create_url_partition.json'):
     threads = []
     payload_queue = Queue()
     result_queue = Queue()
@@ -139,7 +144,7 @@ def prepare(payload_count, config):
     logger.debug("Loading payload_queue")
 
     for payload_no in range(payload_count):
-        payload = load_payload(config, 'test_monitors.json')
+        payload = load_payload(config, test_payload)
         payload['name'] = update_payload_name(payload['name'], payload_no)
         payload["variables"][7]['value'] = str(base_ip_address + payload_no)
 
@@ -224,7 +229,7 @@ def check_result(result):
 @pytest.mark.skipif(pytest.config.getoption('--scale_run'),
                     reason="Skipping to focus on the scale run")
 def test_iStat_response(get_config, get_host, prepare_tests, setup_logging,
-                          payload_count=50, worker_count=10):
+                        get_test_payload, payload_count=50, worker_count=10):
     """
     BUG:
     Deployment of the iApp fails randomly with:
@@ -240,7 +245,7 @@ def test_iStat_response(get_config, get_host, prepare_tests, setup_logging,
     """
 
     threads, payload_queue, result_queue, logger, payload, base_log_dir = prepare(
-        payload_count, get_config)
+        payload_count, get_config, get_test_payload)
 
     for worker_no in range(worker_count):
         threads.append(iStatWorker(
@@ -259,7 +264,7 @@ def test_iStat_response(get_config, get_host, prepare_tests, setup_logging,
 @pytest.mark.skipif(pytest.config.getoption('--scale_run'),
                     reason="Skipping to focus on the scale run")
 def test_kill_control_plane(get_config, get_host, prepare_tests, setup_logging,
-                        payload_count=50, worker_count=10):
+                            get_test_payload, payload_count=50, worker_count=10):
     """
     BUG:
     Control plane dies with 502.
@@ -276,7 +281,7 @@ def test_kill_control_plane(get_config, get_host, prepare_tests, setup_logging,
     """
 
     threads, payload_queue, result_queue, logger, payload, base_log_dir = prepare(
-        payload_count, get_config)
+        payload_count, get_config, get_test_payload)
 
     for worker_no in range(worker_count):
         threads.append(REST_killer(
