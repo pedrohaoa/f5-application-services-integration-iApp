@@ -74,8 +74,7 @@ class iStatWorker(threading.Thread):
 
             self.logger.info("Verifying deployment of {}".format(
                 payload['name']))
-            deployment_verified = self.bip_client.verify_deployment_result(
-                payload, log_dir)
+            deployment_verified = ''#self.bip_client.verify_deployment_result(payload, log_dir)
 
             self.result_queue.put({
                 'payload_no': payload_no,
@@ -109,8 +108,7 @@ class REST_killer(iStatWorker):
 
             self.logger.info("Verifying deployment of {}".format(
                 payload['name']))
-            deployment_verified = self.bip_client.verify_deployment_result(
-                payload, log_dir)
+            deployment_verified = ''#self.bip_client.verify_deployment_result(payload, log_dir)
 
             self.result_queue.put({
                 'payload_no': payload_no,
