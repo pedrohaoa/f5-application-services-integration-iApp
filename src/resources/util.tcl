@@ -397,14 +397,20 @@ proc process_options_string { option_str tmsh template {add_default 0} } {
     if { [string length $tmsh] > 0 } {
       set counter 1
       while 1 {
-        if { [catch {
+        if {[catch {
           set profileobj [lindex [tmsh::get_config ltm $tmsh $template all-properties] 0]
           set is_valid_profile [is_valid_profile_option $profileobj $option]
         }]} { set is_valid_profile 0 }
-        if {$is_valid_profile != 0 || $counter == 5 } break
+        if {$is_valid_profile != 0 || $counter == 10 } break
         set counter [expr {$counter + 1}]
       }
-      if { [is_valid_profile_option $profileobj $option] == 0 } {
+      if {$counter == 10} {
+        error "There is problem with mcpd"
+      }
+      if {[catch {
+        set is_valid_profile [is_valid_profile_option $profileobj $option]
+      }]} {set is_valid_profile 0}
+      if { $is_valid_profile == 0 } {
         error "The option \"$option\" for $tmsh is not valid"
       }
     }
