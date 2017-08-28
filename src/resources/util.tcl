@@ -401,11 +401,11 @@ proc process_options_string { option_str tmsh template {add_default 0} } {
           set profileobj [lindex [tmsh::get_config ltm $tmsh $template all-properties] 0]
           set is_valid_profile [is_valid_profile_option $profileobj $option]
         }]} { set is_valid_profile 0 }
-        if {$is_valid_profile != 0 || $counter == 100 } break
+        if {$is_valid_profile != 0 || $counter == 15 } break
         set counter [expr {$counter + 1}]
 	after 1000
       }
-      if {$counter == 100} {
+      if {$counter == 15} {
         error "There is problem with mcpd"
       }
       if {[catch {
