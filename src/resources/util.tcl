@@ -403,6 +403,7 @@ proc process_options_string { option_str tmsh template {add_default 0} } {
         }]} { set is_valid_profile 0 }
         if {$is_valid_profile != 0 || $counter == 100 } break
         set counter [expr {$counter + 1}]
+	after 1000
       }
       if {$counter == 100} {
         error "There is problem with mcpd"
